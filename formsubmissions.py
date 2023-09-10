@@ -1,10 +1,8 @@
 import requests
 import random
 from bs4 import BeautifulSoup
-from time import sleep
 from faker import Faker
 import json
-from pprint import pprint
 import ast
 
 fake = Faker('en_IN')
@@ -59,35 +57,39 @@ def faker_input(_type):
         return _type
 
 
-def spam_form(response):
+def prepare_payload(response):
     fields = ast.literal_eval(response['fields'])
     link = "https://docs.google.com/forms/d/e/{}/formResponse".format(fields['link'].split("/")[6])
-    fields = fields['items']
+    response['fields'] = fields['items']
+    response['link'] = link
+    response.pop("submit", None)
+
+    return response
+
+
+def parse_payload(payload):
+
+    fields = payload['fields']
     items = {}
+
     for field in fields:
         options_list = []
         for option in field['options']:
             if not option['type']:
                 options_list.append(option['option'])
         items[field['id']] = options_list
-    num = int(response['num'])
-    response.pop("fields", None)
-    response.pop("submit", None)
-    response.pop("num", None)
-    for n in range(num):
-        payload = {}
-        for key, value in response.items():
-            if value.startswith("!cgpa."):
-                payload[key] = str(random.randrange(int(value[6:]) * 10, 100, 1) / 10)
-            elif value.startswith("!roll."):
-                payload[key] = value[6:] + str(random.randrange(10000, 99999, 1))
-            elif value.startswith("!fake."):
-                payload[key] = faker_input(value[6:])
-            elif value == "!random":
-                payload[key] = random.choice(items[key])
-            else:
-                payload[key] = value
-        requests.post(link, data=payload)
-        print(payload)
-        sleep(0.3)
-    return
+
+    parsed_payload = {}
+
+    for key, value in payload.items():
+        if value.startswith("!cgpa."):
+            parsed_payload[key] = str(random.randrange(int(value[6:]) * 10, 100, 1) / 10)
+        elif value.startswith("!roll."):
+            parsed_payload[key] = value[6:] + str(random.randrange(10000, 99999, 1))
+        elif value.startswith("!fake."):
+            parsed_payload[key] = faker_input(value[6:])
+        elif value == "!random":
+            parsed_payload[key] = random.choice(items[key])
+        else:
+            parsed_payload[key] = value
+    return parsed_payload, payload['link'], payload['num']
