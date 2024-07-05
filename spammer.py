@@ -6,7 +6,7 @@ from pprint import pprint
 
 fake = Faker()
 
-link = 'https://docs.google.com/forms/d/e/1FAIpQLScTafYexoPJNGYU_y1oIYW8x7uNoucwY1AaUxYHaSFJGCYNCg/viewform'
+link = 'https://docs.google.com/forms/d/e/1FAIpQLSe6eS3EPyWi1u53Cgj0LZT6JsRH8TJrgU53n-3s_Ly2OgjiNA/viewform'
 entry = get_fields(link)['items'][0]['id']
 post_link = f'https://docs.google.com/forms/d/e/{link.split("/")[6]}/formResponse'
 
