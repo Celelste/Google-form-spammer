@@ -1,11 +1,6 @@
 import requests
-import random
 from bs4 import BeautifulSoup
-from faker import Faker
 import json
-import ast
-
-fake = Faker('en_IN')
 
 
 def get_soup(link):
@@ -40,4 +35,3 @@ def get_fields(link):
         except:
             pass
     return {"title": title, "desc": desc, "items": items, "link": link}
-
